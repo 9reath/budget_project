@@ -69,7 +69,37 @@ if login_system():
         
         with tab_upload:
             st.subheader(f"Upload Laporan: {current_user}")
-            file = st.file_uploader("Pilih file .xlsx", type=["xlsx"])
+            
+            # --- BAGIAN DOWNLOAD TEMPLATE ---
+            # Kita buat data contoh agar user tahu kolom apa saja yang dibutuhkan
+            template_data = {
+                "date": ["2026-03-28"], 
+                "category": ["Logistik"], 
+                "amount": [150000], 
+                "type": ["Expense"], 
+                "description": ["Beli Beras"]
+            }
+            df_template = pd.DataFrame(template_data)
+            
+            # Proses konversi DataFrame ke Excel di memori (agar bisa didownload)
+            import io
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                df_template.to_excel(writer, index=False)
+            
+            st.info("Silakan gunakan template di bawah ini agar format data sesuai:")
+            st.download_button(
+                label="📥 Download Template Excel",
+                data=buffer.getvalue(),
+                file_name=f"template_budget_{current_user}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+            
+            st.divider() # Garis pemisah agar rapi
+            
+            # --- LANJUT KE BAGIAN UPLOAD ---
+            file = st.file_uploader("Pilih file .xlsx yang sudah diisi", type=["xlsx"])
+            # ... (kode upload Anda selanjutnya)
             
             if file:
                 df_upload = pd.read_excel(file)
